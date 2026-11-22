@@ -73,14 +73,25 @@ class ProjectControllerTest {
 
     @Test
     void listsProjectMetadataAndUploadLimits() throws Exception {
-        when(service.list(0)).thenReturn(new ProjectService.ProjectList(List.of(project), 1, false, 536870912, 2));
+        when(service.list(0)).thenReturn(new ProjectService.ProjectList(List.of(project), 1, false, 536870912, 2, 1, 3));
 
         mvc.perform(get("/api/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uploadedVideos").value(1))
                 .andExpect(jsonPath("$.activeJobs").value(2))
+                .andExpect(jsonPath("$.completedProjects").value(1))
+                .andExpect(jsonPath("$.generatedClips").value(3))
                 .andExpect(jsonPath("$.maxUploadBytes").value(536870912))
                 .andExpect(jsonPath("$.projects[0].video.durationSeconds").value(1.5));
+    }
+
+    @Test
+    void loadsAProjectDirectlyForTheWorkspace() throws Exception {
+        when(service.get(projectId)).thenReturn(project);
+
+        mvc.perform(get("/api/projects/{id}", projectId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.video.durationSeconds").value(1.5));
     }
 
     @Test

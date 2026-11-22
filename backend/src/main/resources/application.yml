@@ -25,6 +25,10 @@ spring:
     multipart:
       max-file-size: ${CLIPTOVA_MAX_VIDEO_SIZE:512MB}
       max-request-size: ${CLIPTOVA_MAX_REQUEST_SIZE:513MB}
+  task:
+    scheduling:
+      pool:
+        size: 2
   mvc:
     problemdetails:
       enabled: true
@@ -46,3 +50,6 @@ cliptova:
     ollama-port: ${CLIPTOVA_OLLAMA_PORT:11434}
     model: ${CLIPTOVA_HIGHLIGHTS_MODEL:qwen3.5:9b}
     request-timeout: ${CLIPTOVA_HIGHLIGHTS_REQUEST_TIMEOUT:90s}
+  clips:
+    directory: ${CLIPTOVA_CLIPS_DIRECTORY:./data/clips}
+    render-timeout: ${CLIPTOVA_CLIP_RENDER_TIMEOUT:5m}

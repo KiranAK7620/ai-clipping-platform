@@ -1,0 +1,120 @@
+.caption-editor {
+  border-block: 1px solid #2c3a57;
+  padding: 6px 0 12px;
+}
+.caption-editor__header, .caption-editor__bold, .caption-number > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.caption-editor__header h3 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  color: #e7edff;
+  font-size: 0.84rem;
+  font-weight: 680;
+}
+.caption-editor__header h3 svg { color: #9bb3f5; }
+.caption-editor__options, .caption-options {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.caption-editor__options, .caption-editor__more { display: grid; gap: 10px; }
+.caption-options legend, .caption-color > span:first-child, .caption-number, .caption-editor__bold {
+  color: #dce5fb;
+  font-size: 0.73rem;
+  font-weight: 620;
+}
+.caption-options legend { padding: 0; margin-bottom: 5px; }
+.caption-options > div, .caption-editor__colors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.caption-options .edit-choice > span { min-height: 33px; padding: 4px; }
+.caption-options [data-font-choice="SERIF"] { font-family: Georgia, serif; }
+.caption-options [data-font-choice="MONOSPACE"] { font-family: ui-monospace, monospace; }
+.caption-editor__colors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.caption-color {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+.caption-color__well {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 3px 5px;
+  border: 1px solid #344568;
+  border-radius: 7px;
+  background: #18243b;
+  color: #b9caee;
+  font: 0.64rem ui-monospace, monospace;
+}
+.caption-color input[type="color"] {
+  width: 21px;
+  height: 21px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+.caption-color input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  padding: 1px 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.caption-color input[aria-invalid="true"] { color: #ffadb9; outline: 1px solid #df7893; }
+.caption-color input::-webkit-color-swatch-wrapper { padding: 0; }
+.caption-color input::-webkit-color-swatch { border: 1px solid #7186b4; border-radius: 4px; }
+.caption-color input::-moz-color-swatch { border: 1px solid #7186b4; border-radius: 4px; }
+.caption-number > div > span:last-child { color: #b2c9ff; font-variant-numeric: tabular-nums; }
+.caption-number .MuiSlider-root { display: block; width: calc(100% - 6px); margin-inline: 3px; padding-block: 10px; color: #8aa8ff; }
+.caption-editor__advanced.edit-exact { margin-top: 0; }
+.caption-editor__more { margin-top: 10px; }
+.caption-editor__more .MuiButton-root { justify-self: start; padding-left: 0; }
+
+
+.caption-themes { padding-top: 8px; border-top: 1px solid #2c3a57; }
+.caption-themes__content, .caption-themes__form { display: grid; gap: 8px; }
+.caption-themes__content { margin-top: 10px; }
+.caption-themes__actions { display: flex; flex-wrap: wrap; gap: 5px; }
+.caption-themes__actions > .MuiButton-root:first-child { padding-left: 0; }
+.caption-themes__editing { margin: 0; color: #b6c5e7; font-size: 0.74rem; overflow-wrap: anywhere; }
+.caption-themes__editing strong { color: #e4edff; }
+.caption-themes__status, .caption-themes__empty { color: #b6c5e7; font-size: 0.74rem; }
+.caption-themes__list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.caption-themes__list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; }
+.caption-themes__apply {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 7px;
+  border: 1px solid #354467;
+  border-radius: 7px;
+  background: #18243b;
+  color: #e4edff;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.caption-themes__apply:hover { background: #233657; }
+.caption-themes__apply:disabled { opacity: 0.55; }
+.caption-themes__list .MuiIconButton-root:not(.Mui-disabled) { color: #b6caff; }
+.caption-themes__list strong { display: block; overflow-wrap: anywhere; font-size: 0.74rem; }
+.caption-themes__list small { display: block; color: #adbfeb; font-size: 0.65rem; }
+.caption-themes__swatch { flex: none; padding: 2px 5px; border: 1px solid #7083aa; border-radius: 4px; }

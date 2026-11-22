@@ -51,7 +51,14 @@ class ProjectService {
     ProjectList list(int page) {
         var recent = projects.findAllByOrderByCreatedAtDescIdDesc(PageRequest.of(page, PAGE_SIZE));
         return new ProjectList(recent.map(Project::response).getContent(), projects.countUploadedVideos(),
-                recent.hasNext(), maxUploadBytes, projects.countActiveJobs());
+                recent.hasNext(), maxUploadBytes, projects.countActiveJobs(),
+                projects.countCompletedProjects(), projects.countGeneratedClips());
+    }
+
+    @Transactional(readOnly = true)
+    ProjectResponse get(UUID id) {
+        return projects.findById(id).map(Project::response).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found."));
     }
 
     UploadResult upload(UUID projectId, String name, ProjectCategory category, MultipartFile file) {
@@ -122,7 +129,7 @@ class ProjectService {
     }
 
     record ProjectList(List<ProjectResponse> projects, long uploadedVideos, boolean hasNext, long maxUploadBytes,
-                       long activeJobs) {}
+                       long activeJobs, long completedProjects, long generatedClips) {}
 
     record UploadResult(ProjectResponse project, boolean created) {}
 }

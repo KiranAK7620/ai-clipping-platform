@@ -5,9 +5,11 @@ ClipTova uses a modular monolith. One Spring Boot process exposes the API and ow
 ```text
 frontend/
   src/app/                 Studio shell and navigation
-  src/features/dashboard/ Dashboard, categories, upload form and project list
+  src/features/dashboard/ Dashboard, categories, upload page and project list
+  src/features/workspace/ Project workspace, view links and shared layout
   src/features/transcription/ Job controls, status and transcript segments
-  src/features/highlights/ Ranked suggestions, preview, timing edits and decisions
+  src/features/clips/      Export options and generated clip previews
+  src/features/highlights/ Ranked suggestions, source preview, drag-to-trim editor and export controls
   src/services/            Typed API clients and React Query hooks
   src/theme/               Material UI theme with locally served Inter
 backend/
@@ -16,6 +18,7 @@ backend/
     health/                Health controller, response DTO and connection check
     project/               Project API, service, JPA entities and repository
     transcription/         Job API, database queue, worker and Whisper adapter
+    clip/                  Render queue, caption overlays, FFmpeg and media endpoints
     highlight/             LLM adapter, validation, ranking and assisted selection
     video/                 File staging, filename validation and FFprobe
   src/main/resources/
@@ -25,7 +28,7 @@ backend/
 
 ## Frontend
 
-Material UI supplies controls and dialogs. React Query manages health, the paginated project list, upload and transcription state. The upload dialog uses XMLHttpRequest for byte progress. A successful upload refreshes the project list and moves the browser to Recent projects. The transcript dialog polls while its job is queued or running. The uploaded-video and active-job counts come from PostgreSQL.
+Material UI supplies controls for the dashboard and project workspace. React Query manages health, the paginated project list, upload and transcription state. The upload dialog uses XMLHttpRequest for byte progress. A successful upload refreshes the project list and opens the workspace Transcript view. The Transcript view polls while its job is queued or running. The uploaded-video and active-job counts come from PostgreSQL.
 
 ## Backend
 
@@ -41,12 +44,15 @@ FFmpeg extracts the first audio track to temporary mono 16 kHz PCM. whisper.cpp 
 
 The highlights module sends overlapping windows of saved transcript segments to Ollama on loopback. The adapter requests structured JSON with segment indices. The service maps those indices to saved timestamps, rejects invalid ranges, suppresses overlapping suggestions, and ranks the remaining candidates by score and duration. Flyway V5 stores the candidates and review decisions per transcript revision. Original-video preview uses HTTP byte ranges.
 
+The clip module snapshots a selected highlight range and caption settings. PostgreSQL leases background render jobs so interrupted jobs can be reclaimed. The worker rebases transcript cues into the saved clip range, generates styled, timed transparent overlays when captions are enabled, and composites them into a vertical MP4 with FFmpeg. Files are published separately from originals, and stale workers cannot publish a database result. Clip and transcription jobs have separate scheduling capacity.
+
 Both development servers bind to loopback by default.
 
 | Endpoint | Behavior |
 | --- | --- |
 | `GET /api/health` | Checks PostgreSQL connectivity. |
 | `GET /api/projects?page=0` | Lists up to 20 recent projects with upload and active-job counts, upload limit in bytes, and the next-page indicator. |
+| `GET /api/projects/{projectId}` | Returns metadata for a direct project workspace link. |
 | `POST /api/projects` | Accepts multipart `projectId`, `name`, `category` and `file`. Returns HTTP 201 with uploaded metadata, or 200 for a retry with the same project ID, name and category. |
 | `GET /api/projects/{projectId}/transcription` | Returns status and the last saved transcript with timestamps and revision number. |
 | `POST /api/projects/{projectId}/transcription?language=AUTO` | Queues a new attempt or returns the active or completed job. Pass the current `revision` to rerun a completed job. Supports `AUTO`, `ENGLISH`, `HINDI`, and `MARATHI`. |
@@ -55,5 +61,12 @@ Both development servers bind to loopback by default.
 | `POST /api/projects/{projectId}/highlights` | Runs local suggestion generation or returns suggestions already saved for the current revision. |
 | `PATCH /api/projects/{projectId}/highlights/{id}` | Saves start and end milliseconds and the review decision. |
 | `GET /api/projects/{projectId}/highlights/source` | Streams the original video for preview, with byte-range support. |
+| `GET /api/caption-themes` | Lists saved caption themes shared by all projects in this installation. |
+| `POST /api/caption-themes` | Saves a named snapshot of caption settings. Names are unique regardless of case. |
+| `PUT /api/caption-themes/{id}` | Updates a shared theme’s name and caption settings in place. |
+| `GET /api/projects/{projectId}/clips` | Lists clip exports and their status. |
+| `POST /api/projects/{projectId}/clips` | Queues a clip from a selected highlight, reuses an identical export, or retries a failed one. |
+| `GET /api/projects/{projectId}/clips/{id}/preview` | Serves the generated MP4 with byte-range support. |
+| `GET /api/projects/{projectId}/clips/{id}/download` | Serves the generated MP4 as an attachment. |
 
 The client generates one project ID per upload attempt and keeps it across unchanged retries. Reusing an ID with a different project name or category returns HTTP 409. Unsupported extensions return HTTP 415, unreadable videos return HTTP 422, and uploads over the configured limit return HTTP 413.

@@ -2,7 +2,7 @@ export type TranscriptionLanguage = 'AUTO' | 'ENGLISH' | 'HINDI' | 'MARATHI';
 
 type Status = 'NOT_STARTED' | 'QUEUED' | 'EXTRACTING_AUDIO' | 'TRANSCRIBING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
 
-interface Segment {
+export interface Segment {
   startMs: number;
   endMs: number;
   text: string;

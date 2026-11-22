@@ -1,8 +1,8 @@
 # ClipTova progress tracker
 
-Last updated **2026-11-22 16:31 IST (UTC+05:30)**
+Last updated **2026-11-22 17:39 IST (UTC+05:30)**
 
-**Current status** · `sprint-1` includes video upload, local transcription, and AI Highlights with an interactive preview. Phase 4 Clip Generation is next.
+**Current status** · `sprint-1` includes Phase 4 clip exports, the editing workspace, and shared caption themes. Phase 5 Automatic Clipping is next.
 
 ## Completed milestones
 
@@ -18,14 +18,19 @@ Last updated **2026-11-22 16:31 IST (UTC+05:30)**
 | 2026-11-22 16:10 | Clip preview controls | The preview shows elapsed time and duration within the highlight. Verified playback, replay, and seeking for the 10-second clip in **test**. |
 | 2026-11-22 16:15 | Interactive clip player | Added on-video playback controls, keyboard scrubbing, five-second jumps, mute, and full screen. Verified the controls on **test**. |
 | 2026-11-22 16:31 | Phase 1–3 code review | Fixed a rounding edge case at the end of a source video. All 31 backend tests and the frontend production build passed. |
+| 2026-11-22 16:46 | Phase 4 · Clip Generation | Added local FFmpeg exports with saved ranges, duration presets, and two caption styles. Verified 10- and 45-second 720 × 1280 MP4s on **test**, including preview, download, and caption timing. All 34 backend tests and the frontend production build passed. |
+| 2026-11-22 17:00 | Project editing workspace | Replaced project dialogs with full-page upload, trim, transcript, and export views. Verified drag-to-trim, timeline zoom, transcript seeking, caption styles, and the preset export across desktop and narrow layouts. All 35 backend tests and the frontend build passed. |
+| 2026-11-22 17:17 | Caption editor | Added caption toggling, color pickers, typography, opacity, placement, and outlines. Verified custom and caption-free MP4s plus reuse of saved settings. All 37 backend tests and the frontend build passed. |
+| 2026-11-22 17:24 | Saved caption themes | Added a shared library of named caption settings. Verified that Amber Serif could be saved in **test** and applied in **Phase 2 English sample** after reload. All 40 backend tests and the frontend build passed. |
+| 2026-11-22 17:28 | Caption theme editing | Added in-place editing and renaming for saved themes. Verified cross-project updates, cancel behavior, 42 backend tests, and the frontend build. |
+| 2026-11-22 17:39 | Phase 4 release review | Verified 30-, 45-, and 60-second 720 × 1280 H.264/AAC exports, preview and download, theme rendering, and the original video checksum. All 42 backend tests and the frontend build passed. |
 
 ## To do
 
-Open items reviewed **2026-11-22 16:31 IST**. Roadmap phases are listed in delivery order.
+Open items reviewed **2026-11-22 17:39 IST**. Roadmap phases are listed in delivery order.
 
 - [ ] Review the full **test** transcript for wording, code-switching and timestamp accuracy. The Hindi / Hinglish retest was spot-checked.
 - [ ] Evaluate Marathi on a representative Marathi recording and measure transcription accuracy and processing time on longer recordings.
-- [ ] **Phase 4 · Clip Generation** — Add FFmpeg trimming, 9:16 output, subtitles, 30/45/60-second presets, preview and download.
 - [ ] **Phase 5 · Automatic Clipping** — Rank and select top candidates, generate multiple clips and show progress.
 - [ ] **Phase 6 · AI Admin Panel** — Add provider and model configuration, API key management, routing, fallback, and usage and cost monitoring.
 - [ ] **Phase 7 · Quality and Private Beta** — Test podcast, gaming and education footage across supported languages. Measure timestamp and subtitle accuracy, clip quality, processing time and cost.

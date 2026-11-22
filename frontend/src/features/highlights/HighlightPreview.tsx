@@ -9,6 +9,8 @@ import VolumeOffRounded from '@mui/icons-material/VolumeOffRounded';
 import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
 import { Alert, CircularProgress, IconButton, Slider } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CaptionSettings } from '../../services/clips';
+import type { Segment } from '../../services/transcription';
 import { formatTimecode } from '../../services/timecode';
 import './highlightPreview.css';
 
@@ -17,7 +19,17 @@ interface Props {
   title: string;
   startMs: number;
   endMs: number;
+  autoPlay?: boolean;
+  captions?: CaptionSettings;
+  portrait?: boolean;
+  captionSegments?: Segment[];
 }
+
+const families: Record<CaptionSettings['fontFamily'], string> = {
+  SANS_SERIF: 'system-ui, sans-serif',
+  SERIF: 'Georgia, serif',
+  MONOSPACE: 'ui-monospace, monospace',
+};
 
 function play(video: HTMLVideoElement) {
   void video.play().catch(() => {
@@ -25,7 +37,7 @@ function play(video: HTMLVideoElement) {
   });
 }
 
-export default function HighlightPreview({ src, title, startMs, endMs }: Props) {
+export default function HighlightPreview({ src, title, startMs, endMs, autoPlay = true, captions, portrait = false, captionSegments }: Props) {
   const playerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const initialSeekComplete = useRef(false);
@@ -61,12 +73,23 @@ export default function HighlightPreview({ src, title, startMs, endMs }: Props) 
     return () => cancelAnimationFrame(frame);
   }, [playing, end, finish]);
 
-  function startPreview(video: HTMLVideoElement) {
+  const startPreview = useCallback((video: HTMLVideoElement) => {
     if (initialSeekComplete.current) return;
     initialSeekComplete.current = true;
     setReady(true);
-    play(video);
-  }
+    if (autoPlay) play(video);
+  }, [autoPlay]);
+
+  const cuePreview = useCallback((video: HTMLVideoElement) => {
+    if (initialSeekComplete.current || video.seeking) return;
+    if (Math.abs(video.currentTime - start) > 0.001) video.currentTime = start;
+    else startPreview(video);
+  }, [start, startPreview]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && video.readyState >= HTMLMediaElement.HAVE_METADATA) cuePreview(video);
+  }, [cuePreview]);
 
   useEffect(() => {
     function syncFullscreen() {
@@ -119,10 +142,13 @@ export default function HighlightPreview({ src, title, startMs, endMs }: Props) 
   const muteLabel = muted ? 'Unmute clip' : 'Mute clip';
   const fullscreenLabel = fullscreen ? 'Exit full screen' : 'Full screen';
 
+  const caption = captions?.enabled && captionSegments?.find((segment) =>
+    segment.startMs <= startMs + elapsedMs && segment.endMs > startMs + elapsedMs);
+
   if (failed) return <Alert severity="warning">The browser could not play the original video.</Alert>;
 
   return (
-    <div className="clip-player" ref={playerRef}>
+    <div className="clip-player" data-portrait={portrait} ref={playerRef}>
       <video
         className={ready ? undefined : 'clip-player__video--loading'}
         ref={videoRef}
@@ -131,10 +157,7 @@ export default function HighlightPreview({ src, title, startMs, endMs }: Props) 
         preload="metadata"
         muted={muted}
         aria-label={`Preview of ${title}`}
-        onLoadedMetadata={({ currentTarget: video }) => {
-          if (start > 0) video.currentTime = start;
-          else startPreview(video);
-        }}
+        onLoadedMetadata={({ currentTarget: video }) => cuePreview(video)}
         onSeeked={({ currentTarget: video }) => startPreview(video)}
         onPlaying={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
@@ -146,6 +169,20 @@ export default function HighlightPreview({ src, title, startMs, endMs }: Props) 
         }}
         onError={() => setFailed(true)}
       />
+      {ready && captions && caption && !finished && (
+        <div className="clip-player__caption" data-position={captions.position} aria-hidden="true" dir="auto"
+          style={{ textAlign: captions.alignment === 'LEFT' ? 'left' : captions.alignment === 'RIGHT' ? 'right' : 'center' }}>
+          <span style={{
+            fontFamily: families[captions.fontFamily],
+            fontWeight: captions.bold ? 700 : 400,
+            fontSize: `${captions.fontSize / 7.2}cqw`,
+            color: captions.textColor,
+            backgroundColor: captions.backgroundColor + Math.round(255 * captions.backgroundOpacity / 100)
+              .toString(16).padStart(2, '0'),
+            WebkitTextStroke: `${captions.outlineWidth / 7.2}cqw ${captions.outlineColor}`,
+          }}>{caption.text}</span>
+        </div>
+      )}
       <button type="button" className="clip-player__surface" tabIndex={-1} disabled={!ready}
         aria-label={playLabel} onClick={togglePlayback}>
         {!playing && (ready ? <span><PlayIcon /></span> : <CircularProgress size={28} aria-label="Loading clip" />)}

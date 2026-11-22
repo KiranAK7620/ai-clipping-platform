@@ -26,7 +26,7 @@ Set the application password when prompted and use the same value in `backend/.e
 
 ## Migrations
 
-On startup, Flyway applies SQL from `backend/src/main/resources/db/migration`. V1 creates `projects`. V2 adds `videos` with one original and its metadata per project. V3 adds `transcription_jobs`, `transcripts`, and ordered `transcript_segments`. V4 keeps successive transcript revisions and assigns revision 1 to existing transcripts. V5 adds ranked highlight candidates, editable ranges, and review decisions for each transcript revision. Transcript and highlight offsets are stored in milliseconds. Flyway records applied migrations in `public.flyway_schema_history`, and Flyway clean is disabled.
+On startup, Flyway applies SQL from `backend/src/main/resources/db/migration`. V1 creates `projects`. V2 adds `videos` with one original and its metadata per project. V3 adds `transcription_jobs`, `transcripts`, and ordered `transcript_segments`. V4 keeps successive transcript revisions and assigns revision 1 to existing transcripts. V5 adds ranked highlight candidates, editable ranges, and review decisions for each transcript revision. V6 adds the clip render queue and output file references. V7 saves caption settings on each export and migrates the earlier outlined and boxed styles. V8 stores reusable caption themes in a shared library. Transcript and highlight offsets are stored in milliseconds. Flyway records applied migrations in `public.flyway_schema_history`, and Flyway clean is disabled.
 
 Run these read-only checks while connected to `clipping_db`:
 
@@ -59,3 +59,12 @@ When raising the file limit, leave room for multipart overhead in the request li
 | `CLIPTOVA_AUDIO_EXTRACT_TIMEOUT` | `3m` | Wall-clock budget for FFmpeg |
 | `CLIPTOVA_WHISPER_TIMEOUT` | `45m` | Wall-clock budget for Whisper |
 | `CLIPTOVA_WHISPER_THREADS` | `4` | Whisper thread count |
+
+## Clip generation
+
+| Environment variable | Default | Purpose |
+| --- | --- | --- |
+| `CLIPTOVA_CLIPS_DIRECTORY` | `./data/clips` | Generated MP4 storage, relative to the backend working directory unless absolute |
+| `CLIPTOVA_CLIP_RENDER_TIMEOUT` | `5m` | Wall-clock budget for each FFmpeg render |
+
+Back up this directory alongside the originals directory and `clipping_db` to preserve generated exports.

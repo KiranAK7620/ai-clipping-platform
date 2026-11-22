@@ -38,8 +38,8 @@ export function Dashboard({ onNewProject }: { onNewProject: (category?: Category
   const values: Record<(typeof metrics)[number]['label'], number | string> = {
     'Uploaded videos': activity?.uploadedVideos ?? '—',
     'Processing jobs': activity?.activeJobs ?? '—',
-    'Completed projects': 0,
-    'Generated clips': 0,
+    'Completed projects': activity?.completedProjects ?? '—',
+    'Generated clips': activity?.generatedClips ?? '—',
   };
 
   return (

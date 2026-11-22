@@ -28,6 +28,11 @@ class ProjectController {
         return service.list(page);
     }
 
+    @GetMapping("/{projectId}")
+    ProjectResponse get(@PathVariable UUID projectId) {
+        return service.get(projectId);
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<ProjectResponse> upload(@Valid @ModelAttribute UploadForm form) {
         var result = service.upload(form.projectId(), form.name(), form.category(), form.file());

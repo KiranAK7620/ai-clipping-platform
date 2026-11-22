@@ -1,19 +1,12 @@
 import AddRounded from '@mui/icons-material/AddRounded';
 import FolderOpenRounded from '@mui/icons-material/FolderOpenRounded';
 import { Alert, Button, Skeleton, Typography } from '@mui/material';
-import { lazy, Suspense, useState } from 'react';
 import { useProjects, type Project } from '../../services/projects';
+import { workspaceHref } from '../workspace/workspaceRoute';
 import { categories } from './categories';
 import { formatBytes, formatDuration } from './projectFormatting';
 
-const HighlightsDialog = lazy(() => import('../highlights/HighlightsDialog'));
-const TranscriptionDialog = lazy(() => import('../transcription/TranscriptionDialog'));
-
-function ProjectCard({ project, onTranscript, onHighlights }: {
-  project: Project;
-  onTranscript: () => void;
-  onHighlights: () => void;
-}) {
+function ProjectCard({ project }: { project: Project }) {
   const { video } = project;
   const category = categories.find(({ name }) => name.toUpperCase() === project.category);
   return (
@@ -41,8 +34,7 @@ function ProjectCard({ project, onTranscript, onHighlights }: {
             <div><dt>Audio codec</dt><dd>{video.audioCodec ?? 'Unavailable'}</dd></div>
           </dl>
           <div className="project-transcript-action">
-            <Button onClick={onTranscript}>Transcript</Button>
-            <Button onClick={onHighlights}>Highlights</Button>
+            <Button href={workspaceHref(project.id)} variant="outlined" size="small">Open workspace</Button>
           </div>
         </>
       )}
@@ -51,7 +43,6 @@ function ProjectCard({ project, onTranscript, onHighlights }: {
 }
 
 export function RecentProjects({ onNewProject }: { onNewProject: () => void }) {
-  const [selectedProject, selectProject] = useState<{ project: Project; view: 'transcript' | 'highlights' } | null>(null);
   const query = useProjects();
   const projects = query.data?.pages.flatMap((page) => page.projects) ?? [];
 
@@ -76,9 +67,7 @@ export function RecentProjects({ onNewProject }: { onNewProject: () => void }) {
       {projects.length > 0 && (
         <div className="project-list">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project}
-              onTranscript={() => selectProject({ project, view: 'transcript' })}
-              onHighlights={() => selectProject({ project, view: 'highlights' })} />
+            <ProjectCard key={project.id} project={project} />
           ))}
           {query.hasNextPage && (
             <Button disabled={query.isFetching} onClick={() => void query.fetchNextPage()}>
@@ -87,13 +76,7 @@ export function RecentProjects({ onNewProject }: { onNewProject: () => void }) {
           )}
         </div>
       )}
-      {selectedProject && (
-        <Suspense fallback={null}>
-          {selectedProject.view === 'transcript'
-            ? <TranscriptionDialog project={selectedProject.project} onClose={() => selectProject(null)} />
-            : <HighlightsDialog project={selectedProject.project} onClose={() => selectProject(null)} />}
-        </Suspense>
-      )}
+
     </section>
   );
 }

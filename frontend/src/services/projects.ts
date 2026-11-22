@@ -29,6 +29,8 @@ interface ProjectPage {
   hasNext: boolean;
   maxUploadBytes: number;
   activeJobs: number;
+  completedProjects: number;
+  generatedClips: number;
 }
 
 export interface UploadRequest {
@@ -39,6 +41,14 @@ export interface UploadRequest {
 }
 
 export const projectsKey = ['projects'] as const;
+export const projectKey = (id: string) => ['project', id] as const;
+
+export async function fetchProject(id: string, signal: AbortSignal): Promise<Project> {
+  const response = await fetch(`/api/projects/${encodeURIComponent(id)}`, { signal });
+  if (response.status === 404) throw new Error('Project not found.');
+  if (!response.ok) throw new Error('The project could not be loaded.');
+  return response.json();
+}
 
 export function useProjects() {
   return useInfiniteQuery({

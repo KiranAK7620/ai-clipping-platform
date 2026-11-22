@@ -65,3 +65,12 @@ The generated **Phase 2 English sample** remains in Recent projects. Hindi, Hing
 - [x] Passed all 30 backend tests and the frontend production build. Left the frontend, backend, and local Ollama running.
 
 Phase 4 Clip Generation is the next roadmap milestone.
+
+## 22 November 2026 · Phase 4 Clip Generation
+
+- [x] Applied Flyway V6. The background render queue saves export settings, reuses identical results, and retries expired leases.
+- [x] Added saved-range and 30-, 45-, and 60-second exports, outlined and boxed captions, generated MP4 preview and download, and live clip counts.
+- [x] Confirmed the 10-second saved range and 45-second preset on **test** produced 720 × 1280 H.264 MP4s with AAC audio. Verified browser preview, HTTP attachment downloads, and three caption cues at their expected positions.
+- [x] All 34 backend tests and the frontend production build passed. The studio and updated backend are running locally.
+
+Phase 5 Automatic Clipping is the next roadmap milestone.
