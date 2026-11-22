@@ -21,6 +21,28 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  servlet:
+    multipart:
+      max-file-size: ${CLIPTOVA_MAX_VIDEO_SIZE:512MB}
+      max-request-size: ${CLIPTOVA_MAX_REQUEST_SIZE:513MB}
   mvc:
     problemdetails:
       enabled: true
+cliptova:
+  originals-directory: ${CLIPTOVA_ORIGINALS_DIRECTORY:./data/originals}
+  ffprobe:
+    executable: ${CLIPTOVA_FFPROBE:ffprobe}
+    timeout: ${CLIPTOVA_FFPROBE_TIMEOUT:15s}
+  transcription:
+    ffmpeg: ${CLIPTOVA_FFMPEG:ffmpeg}
+    whisper: ${CLIPTOVA_WHISPER:whisper-cli}
+    model: ${CLIPTOVA_WHISPER_MODEL:./data/models/ggml-base-q5_1.bin}
+    hindi-model: ${CLIPTOVA_WHISPER_HINDI_MODEL:./data/models/ggml-large-v3-turbo-q5_0.bin}
+    max-video-duration: ${CLIPTOVA_TRANSCRIPTION_MAX_DURATION:60m}
+    extract-timeout: ${CLIPTOVA_AUDIO_EXTRACT_TIMEOUT:3m}
+    whisper-timeout: ${CLIPTOVA_WHISPER_TIMEOUT:45m}
+    threads: ${CLIPTOVA_WHISPER_THREADS:4}
+  highlights:
+    ollama-port: ${CLIPTOVA_OLLAMA_PORT:11434}
+    model: ${CLIPTOVA_HIGHLIGHTS_MODEL:qwen3.5:9b}
+    request-timeout: ${CLIPTOVA_HIGHLIGHTS_REQUEST_TIMEOUT:90s}

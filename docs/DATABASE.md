@@ -26,7 +26,7 @@ Set the application password when prompted and use the same value in `backend/.e
 
 ## Migrations
 
-On backend startup, Flyway applies versioned SQL from `backend/src/main/resources/db/migration`. The first migration creates the `projects` table with a UUID identifier, name, supported category and creation time. The creation-time index supports future recent-project queries. Flyway records applied migrations in `public.flyway_schema_history`. Add a new migration for subsequent schema changes. Flyway clean is disabled.
+On startup, Flyway applies SQL from `backend/src/main/resources/db/migration`. V1 creates `projects`. V2 adds `videos` with one original and its metadata per project. V3 adds `transcription_jobs`, `transcripts`, and ordered `transcript_segments`. V4 keeps successive transcript revisions and assigns revision 1 to existing transcripts. V5 adds ranked highlight candidates, editable ranges, and review decisions for each transcript revision. Transcript and highlight offsets are stored in milliseconds. Flyway records applied migrations in `public.flyway_schema_history`, and Flyway clean is disabled.
 
 Run these read-only checks while connected to `clipping_db`:
 
@@ -34,3 +34,28 @@ Run these read-only checks while connected to `clipping_db`:
 SELECT current_database(), current_user;
 SELECT version, description, success FROM public.flyway_schema_history ORDER BY installed_rank;
 ```
+
+## Local video storage
+
+| Environment variable | Default | Purpose |
+| --- | --- | --- |
+| `CLIPTOVA_ORIGINALS_DIRECTORY` | `./data/originals` | Directory for staged and saved originals, relative to the backend working directory unless absolute |
+| `CLIPTOVA_MAX_VIDEO_SIZE` | `512MB` | Maximum source video size |
+| `CLIPTOVA_MAX_REQUEST_SIZE` | `513MB` | Maximum multipart request size, including form overhead |
+| `CLIPTOVA_FFPROBE` | `ffprobe` | FFprobe executable on PATH or an absolute path |
+| `CLIPTOVA_FFPROBE_TIMEOUT` | `15s` | Time budget for metadata extraction |
+
+When raising the file limit, leave room for multipart overhead in the request limit. Use the same originals directory across backend restarts. To back up projects, copy this directory and back up `clipping_db` together. The default data directory is Git-ignored.
+
+## Local transcription
+
+| Environment variable | Default | Purpose |
+| --- | --- | --- |
+| `CLIPTOVA_FFMPEG` | `ffmpeg` | FFmpeg executable for audio extraction |
+| `CLIPTOVA_WHISPER` | `whisper-cli` | whisper.cpp executable |
+| `CLIPTOVA_WHISPER_MODEL` | `./data/models/ggml-base-q5_1.bin` | Local multilingual model relative to the backend working directory unless absolute |
+| `CLIPTOVA_WHISPER_HINDI_MODEL` | `./data/models/ggml-large-v3-turbo-q5_0.bin` | Optional model preferred when the spoken language is set to Hindi / Hinglish |
+| `CLIPTOVA_TRANSCRIPTION_MAX_DURATION` | `60m` | Maximum source duration and audio size budget |
+| `CLIPTOVA_AUDIO_EXTRACT_TIMEOUT` | `3m` | Wall-clock budget for FFmpeg |
+| `CLIPTOVA_WHISPER_TIMEOUT` | `45m` | Wall-clock budget for Whisper |
+| `CLIPTOVA_WHISPER_THREADS` | `4` | Whisper thread count |

@@ -1,13 +1,13 @@
-import AddRounded from '@mui/icons-material/AddRounded';
 import CheckCircleOutlineRounded from '@mui/icons-material/CheckCircleOutlineRounded';
 import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined';
 import ContentCutRounded from '@mui/icons-material/ContentCutRounded';
-import FolderOpenRounded from '@mui/icons-material/FolderOpenRounded';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import TimelapseRounded from '@mui/icons-material/TimelapseRounded';
 import { Button, ButtonBase, Typography } from '@mui/material';
+import { useProjects } from '../../services/projects';
 import { categories, type Category } from './categories';
+import { RecentProjects } from './RecentProjects';
 
 const metrics = [
   { label: 'Uploaded videos', Icon: CloudUploadOutlined, tone: 'blue' },
@@ -34,6 +34,14 @@ function TimelineArtwork() {
 }
 
 export function Dashboard({ onNewProject }: { onNewProject: (category?: Category) => void }) {
+  const activity = useProjects().data?.pages[0];
+  const values: Record<(typeof metrics)[number]['label'], number | string> = {
+    'Uploaded videos': activity?.uploadedVideos ?? '—',
+    'Processing jobs': activity?.activeJobs ?? '—',
+    'Completed projects': 0,
+    'Generated clips': 0,
+  };
+
   return (
     <>
       <section className="hero" aria-labelledby="studio-tagline">
@@ -59,21 +67,14 @@ export function Dashboard({ onNewProject }: { onNewProject: (category?: Category
             <div className="metric" key={label}>
               <span className="icon-tile" data-tone={tone} aria-hidden="true"><Icon fontSize="small" /></span>
               <dt>{label}</dt>
-              <dd>0</dd>
+              <dd>{values[label]}</dd>
             </div>
           ))}
         </dl>
       </section>
 
       <div className="dashboard-columns">
-        <section className="panel projects-panel" id="projects" aria-labelledby="projects-title">
-          <Typography id="projects-title" variant="h2">Recent projects</Typography>
-          <div className="empty-projects">
-            <span className="icon-tile" data-tone="blue"><FolderOpenRounded /></span>
-            <Typography fontWeight={650}>No projects yet</Typography>
-            <Button startIcon={<AddRounded />} onClick={() => onNewProject()}>New project</Button>
-          </div>
-        </section>
+        <RecentProjects onNewProject={() => onNewProject()} />
 
         <section className="panel" id="categories" aria-labelledby="categories-title">
           <Typography id="categories-title" variant="h2">Content categories</Typography>

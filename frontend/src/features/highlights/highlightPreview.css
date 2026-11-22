@@ -1,0 +1,122 @@
+.clip-player {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #34405f;
+  border-radius: 14px;
+  background: #090d1a;
+  color: #f8fafc;
+}
+
+.clip-player video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 52vh;
+  object-fit: contain;
+}
+
+.clip-player video.clip-player__video--loading { visibility: hidden; }
+
+.clip-player:fullscreen video {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.clip-player__surface {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 0 30px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.clip-player__surface:disabled { cursor: default; }
+
+.clip-player__surface > span:not(.MuiCircularProgress-root) {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid #b5c7ff70;
+  border-radius: 50%;
+  background: #244ed8d9;
+  box-shadow: 0 8px 32px #090d1a99;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.clip-player__surface:hover > span:not(.MuiCircularProgress-root) {
+  background: #315ff0;
+  transform: scale(1.06);
+}
+
+.clip-player__surface svg.MuiSvgIcon-root { font-size: 32px; }
+
+.clip-player__controls {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 15px 16px 8px;
+  background: linear-gradient(transparent, #090d1af2 58%);
+}
+
+.clip-player__timeline.MuiSlider-root {
+  display: block;
+  padding-block: 12px;
+  color: #7999ff;
+}
+
+.clip-player__timeline .MuiSlider-rail { opacity: 0.48; }
+
+.clip-player__timeline .MuiSlider-thumb {
+  width: 13px;
+  height: 13px;
+  box-shadow: 0 0 0 2px #090d1acc;
+}
+
+.clip-player__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.clip-player__toolbar .MuiIconButton-root {
+  width: 36px;
+  height: 36px;
+  color: inherit;
+}
+
+.clip-player__toolbar .MuiIconButton-root:hover,
+.clip-player__toolbar .MuiIconButton-root:focus-visible {
+  background: #adc2ff32;
+}
+
+.clip-player__toolbar .MuiIconButton-root.Mui-disabled { opacity: 0.5; }
+
+.clip-player__time {
+  flex: 1;
+  margin-inline: 8px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.clip-player__time span { color: #c1cce3; }
+
+@media (max-width: 540px) {
+  .clip-player__controls { padding-inline: 8px; }
+  .clip-player__toolbar .MuiIconButton-root { width: 30px; height: 30px; }
+  .clip-player__toolbar .MuiSvgIcon-root { font-size: 20px; }
+  .clip-player__time { margin-inline: 4px; font-size: 0.6875rem; }
+  .clip-player__surface > span:not(.MuiCircularProgress-root) { width: 48px; height: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clip-player__surface > span:not(.MuiCircularProgress-root) { transition: none; }
+}

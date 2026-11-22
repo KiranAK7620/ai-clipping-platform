@@ -5,11 +5,12 @@ import FolderOutlined from '@mui/icons-material/FolderOutlined';
 import GridViewRounded from '@mui/icons-material/GridViewRounded';
 import MovieFilterOutlined from '@mui/icons-material/MovieFilterOutlined';
 import { Button, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Dashboard } from '../features/dashboard/Dashboard';
-import { NewProjectDialog } from '../features/dashboard/NewProjectDialog';
 import type { Category } from '../features/dashboard/categories';
 import { useHealth } from '../services/health';
+
+const NewProjectDialog = lazy(() => import('../features/dashboard/NewProjectDialog'));
 
 const navigation = [
   { id: 'overview', label: 'Overview', Icon: DashboardOutlined },
@@ -85,7 +86,13 @@ export function App() {
       </main>
 
       {projectDraft && (
-        <NewProjectDialog category={projectDraft.category} onClose={() => setProjectDraft(null)} />
+        <Suspense fallback={null}>
+          <NewProjectDialog category={projectDraft.category} onClose={() => setProjectDraft(null)}
+            onUploaded={() => {
+              setProjectDraft(null);
+              window.location.hash = 'projects';
+            }} />
+        </Suspense>
       )}
     </div>
   );

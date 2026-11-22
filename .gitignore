@@ -8,3 +8,5 @@ dist/
 target/
 .npm-cache/
 *.tsbuildinfo
+/backend/data/
+/data/
