@@ -34,6 +34,12 @@ record Clip(UUID id, UUID highlightId, String title, long startMs, long endMs,
     }
 
     record Range(long startMs, long endMs) {
+        boolean mostlyOverlaps(Range other) {
+            long overlap = Math.min(endMs, other.endMs) - Math.max(startMs, other.startMs);
+            long shorter = Math.min(endMs - startMs, other.endMs - other.startMs);
+            return overlap > shorter / 2;
+        }
+
         boolean validFor(long durationMs) {
             return startMs >= 0 && endMs > startMs && endMs <= durationMs && endMs - startMs <= 60_000;
         }

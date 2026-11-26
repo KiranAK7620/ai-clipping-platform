@@ -1,5 +1,12 @@
 export type TranscriptionLanguage = 'AUTO' | 'ENGLISH' | 'HINDI' | 'MARATHI';
 
+export const transcriptionLanguages = [
+  { value: 'AUTO', name: 'Detect automatically' },
+  { value: 'ENGLISH', name: 'English' },
+  { value: 'HINDI', name: 'Hindi / Hinglish' },
+  { value: 'MARATHI', name: 'Marathi' },
+] as const satisfies readonly { value: TranscriptionLanguage; name: string }[];
+
 type Status = 'NOT_STARTED' | 'QUEUED' | 'EXTRACTING_AUDIO' | 'TRANSCRIBING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
 
 export interface Segment {

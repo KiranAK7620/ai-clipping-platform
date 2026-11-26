@@ -2,10 +2,12 @@ import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
 import ContentCutRounded from '@mui/icons-material/ContentCutRounded';
 import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
 import SubtitlesOutlined from '@mui/icons-material/SubtitlesOutlined';
+import AutoAwesomeOutlined from '@mui/icons-material/AutoAwesomeOutlined';
 import { Alert, Button, LinearProgress, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { defaultCaptions } from '../../services/clips';
+import AutomaticClipsPanel from '../clips/AutomaticClipsPanel';
 import ClipLibrary from '../clips/ClipLibrary';
 import { formatDuration } from '../dashboard/projectFormatting';
 import HighlightWorkspace from '../highlights/HighlightWorkspace';
@@ -17,6 +19,7 @@ import './workspace.css';
 const views = [
   { id: 'highlights', label: 'Highlights', Icon: ContentCutRounded },
   { id: 'transcript', label: 'Transcript', Icon: SubtitlesOutlined },
+  { id: 'automatic', label: 'Automatic clips', Icon: AutoAwesomeOutlined },
   { id: 'exports', label: 'Exports', Icon: FileDownloadOutlined },
 ] as const;
 
@@ -62,6 +65,7 @@ export default function ProjectWorkspace({ projectId, view }: { projectId: strin
           </nav>
           {view === 'highlights' && <HighlightWorkspace project={project} captions={captions} onCaptionsChange={setCaptions} />}
           {view === 'transcript' && <TranscriptPanel project={project} />}
+          {view === 'automatic' && <AutomaticClipsPanel project={project} captions={captions} onCaptionsChange={setCaptions} />}
           {view === 'exports' && <ClipLibrary projectId={projectId} onUseCaptions={setCaptions} />}
         </>
       )}

@@ -64,7 +64,10 @@ export function clipMedia(projectId: string, clipId: string, action: 'preview' |
 }
 
 async function request<T>(url: string, options: RequestInit): Promise<T> {
-  const response = await fetch(url, options);
+  return readClipResponse<T>(await fetch(url, options));
+}
+
+export async function readClipResponse<T>(response: Response): Promise<T> {
   const data = await response.json().catch(() => null);
   if (!response.ok || data === null) {
     throw new Error(typeof data?.detail === 'string' ? data.detail : 'The clip request failed.');

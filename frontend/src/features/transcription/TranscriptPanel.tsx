@@ -7,7 +7,7 @@ import { highlightSource, highlightsKey } from '../../services/highlights';
 import { projectsKey, type Project } from '../../services/projects';
 import { formatTimecode } from '../../services/timecode';
 import {
-  cancelTranscription, fetchTranscription, isTranscriptionActive, startTranscription, transcriptionKey,
+  cancelTranscription, fetchTranscription, isTranscriptionActive, startTranscription, transcriptionKey, transcriptionLanguages,
   type TranscriptionLanguage,
 } from '../../services/transcription';
 
@@ -20,13 +20,6 @@ const statusLabels = {
   FAILED: 'Transcription failed',
   CANCELLED: 'Transcription cancelled',
 };
-
-const languages: { value: TranscriptionLanguage; name: string }[] = [
-  { value: 'AUTO', name: 'Detect automatically' },
-  { value: 'ENGLISH', name: 'English' },
-  { value: 'HINDI', name: 'Hindi / Hinglish' },
-  { value: 'MARATHI', name: 'Marathi' },
-];
 
 const languageNames = new Intl.DisplayNames(undefined, { type: 'language' });
 
@@ -116,7 +109,7 @@ export default function TranscriptPanel({ project }: { project: Project }) {
             <fieldset className="edit-fieldset" disabled={action.isPending}>
               <legend className="edit-sr-only">Spoken language</legend>
               <div className="edit-language">
-                {languages.map(({ value, name }) => (
+                {transcriptionLanguages.map(({ value, name }) => (
                   <label className="edit-choice" key={value}>
                     <input type="radio" name="transcription-language" checked={language === value}
                       onChange={() => setLanguage(value)} />

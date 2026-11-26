@@ -460,6 +460,7 @@
   .edit-workspace__header { gap: 10px; margin-bottom: 5px; }
   .edit-workspace__tabs { justify-content: space-around; gap: 5px; margin-bottom: 10px; }
   .edit-workspace__tabs a { font-size: 0.78rem; }
+  .edit-workspace__tabs a svg { display: none; }
   .edit-grid, .edit-transcript { grid-template-columns: minmax(0, 1fr); gap: 9px; }
   .edit-highlights { grid-row: auto; padding: 8px; }
   .edit-highlights__heading { margin: 0 2px 6px; }
@@ -474,6 +475,25 @@
   .edit-inspector { grid-column: auto; }
   .edit-transcript__video { position: static; }
   .edit-transcript__segments { max-height: 46vh; }
+}
+
+.edit-automatic {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  align-items: start;
+  gap: 14px;
+  max-width: 1040px;
+}
+
+.edit-automatic__card { padding: clamp(14px, 2.5vw, 24px); }
+.edit-automatic__card h2 { font-size: 1rem; font-weight: 680; }
+.edit-automatic__captions { margin-top: 0; }
+.edit-automatic__captions > .caption-editor { margin-top: 10px; }
+.edit-automatic__clips { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.edit-automatic__clip { padding-top: 10px; border-top: 1px solid #2b3a59; overflow-wrap: anywhere; }
+
+@media (max-width: 735px) {
+  .edit-automatic[data-active="true"] > section { grid-row: 1; }
 }
 
 

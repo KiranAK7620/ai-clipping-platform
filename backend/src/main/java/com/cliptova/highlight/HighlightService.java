@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 
 @Service
-class HighlightService {
+public class HighlightService {
     private static final int MAX_TEXT_CHARS = 5000;
     private static final int MAX_WINDOW_SEGMENTS = 65;
     private static final int MAX_RESULTS = 12;
@@ -42,6 +44,14 @@ class HighlightService {
     }
 
     Result generate(UUID projectId) {
+        return generate(projectId, () -> true);
+    }
+
+    public List<Highlight> generateForAutomatic(UUID projectId, BooleanSupplier renew) {
+        return generate(projectId, renew).highlights();
+    }
+
+    private Result generate(UUID projectId, BooleanSupplier renew) {
         var source = requireTranscript(projectId);
         var existing = existing(source);
         if (!existing.isEmpty()) {
@@ -57,7 +67,8 @@ class HighlightService {
                 return new Result(source.revision(), existing);
             }
             var segments = transcripts.readSegments(source.transcriptId());
-            var candidates = rank(suggest(source, segments));
+            var candidates = rank(suggest(source, segments, renew));
+            requireLease(renew);
             if (candidates.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                         "No complete highlight with valid timestamps was found in this transcript.");
@@ -90,11 +101,17 @@ class HighlightService {
         return source.transcriptId() == null ? List.of() : store.list(source.transcriptId());
     }
 
-    private List<Highlight> suggest(HighlightStore.Source source, List<Transcript.Segment> segments) {
+    private static void requireLease(BooleanSupplier renew) {
+        if (!renew.getAsBoolean()) throw new CancellationException("Automatic run lease expired.");
+    }
+
+    private List<Highlight> suggest(HighlightStore.Source source, List<Transcript.Segment> segments,
+                                    BooleanSupplier renew) {
         var candidates = new ArrayList<Highlight>();
         long deadline = System.nanoTime() + Duration.ofMinutes(15).toNanos();
         int start = 0;
         while (start < segments.size()) {
+            requireLease(renew);
             if (System.nanoTime() >= deadline) {
                 throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Local highlight generation took too long.");
             }

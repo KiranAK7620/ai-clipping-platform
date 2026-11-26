@@ -1,8 +1,33 @@
 # ClipTova progress tracker
 
-Last updated **2026-11-22 17:39 IST (UTC+05:30)**
+Last updated **2026-11-26 19:28 IST (UTC+05:30)**
 
-**Current status** · `sprint-1` includes Phase 4 clip exports, the editing workspace, and shared caption themes. Phase 5 Automatic Clipping is next.
+**Roadmap checkpoint.** Phases 0–5 met their acceptance criteria. Phase 6 AI Admin Panel is next, followed by Phase 7 quality testing and private beta.
+
+## What shipped through Phase 4
+
+| Phase | Delivered | Acceptance evidence | Pushed commit |
+| --- | --- | --- | --- |
+| 0 · Foundation | React dashboard, Spring Boot API, PostgreSQL, Flyway, and local configuration. | Frontend and backend started, the database health endpoint returned `UP`, and Flyway applied the initial schema. | `dddf77c` |
+| 1 · Video Upload | Upload progress and retry, local storage for originals, and metadata extraction with FFprobe. | Uploaded a real video and confirmed that the saved file and metadata appeared in the project. | `d4880ab` |
+| 2 · Transcription | Local FFmpeg and whisper.cpp processing, timestamped transcripts, searchable segments, and transcript revisions. | Verified timestamped English transcription in the browser and spot-checked a Hindi/Hinglish sample. | `d4880ab` |
+| 3 · AI Highlights | Local Ollama/Qwen suggestions ranked from the transcript, editable time ranges, source preview, and saved review decisions. | Reviewed six suggestions on the `test` project and verified preview, timing edits, and selection. | `d4880ab` |
+| 4 · Clip Generation | Editing workspace with manual trimming, 30/45/60-second presets, 9:16 MP4s, customizable captions, reusable caption themes, and export preview and download. | Verified 720 × 1280 exports, caption rendering, preview and download, and the original video's checksum. | `72c8d9e` |
+
+## Current local verification
+
+The November 26 smoke check loaded the dashboard and editing workspace in the browser. The API and PostgreSQL were healthy, all 42 backend tests passed, and the frontend production build passed. The saved `test` project returned a completed transcript, six highlights, and nine ready exports. An MP4 preview was served successfully.
+
+Phase 5 testing used two fresh uploads from the existing test video. The full 8:08 source produced a new transcript with 181 segments, eight ranked highlights, and two 30-second clips without manual timestamp selection. Both preview routes responded, both downloads succeeded, and FFprobe confirmed 720 × 1280 H.264/AAC. The 2½-minute excerpt returned a partial result with one of three requested clips. Repeating the same batch request returned the same run, and a second request during an active batch returned HTTP 409.
+
+## Remaining roadmap
+
+| Phase | Status and plan | Acceptance check |
+| --- | --- | --- |
+| 6 · AI Admin Panel | Add provider and model settings, API key management, task routing, fallback, and usage and cost monitoring. | The owner can switch providers without changing core video-processing logic. |
+| 7 · Quality and Private Beta | Test podcast, gaming, and education footage across English, Hindi, Hinglish, and representative Marathi recordings where supported. Measure timestamp and subtitle accuracy, clip and output quality, processing time, and AI cost per video. | Review the quality results before inviting private beta users. Consider public registration, subscriptions, and cloud hosting after this testing. |
+
+Open quality checks include a full Hindi/Hinglish transcript review for wording, code-switching, and timestamp accuracy, plus a representative Marathi test and timing on longer videos.
 
 ## Completed milestones
 
@@ -24,16 +49,7 @@ Last updated **2026-11-22 17:39 IST (UTC+05:30)**
 | 2026-11-22 17:24 | Saved caption themes | Added a shared library of named caption settings. Verified that Amber Serif could be saved in **test** and applied in **Phase 2 English sample** after reload. All 40 backend tests and the frontend build passed. |
 | 2026-11-22 17:28 | Caption theme editing | Added in-place editing and renaming for saved themes. Verified cross-project updates, cancel behavior, 42 backend tests, and the frontend build. |
 | 2026-11-22 17:39 | Phase 4 release review | Verified 30-, 45-, and 60-second 720 × 1280 H.264/AAC exports, preview and download, theme rendering, and the original video checksum. All 42 backend tests and the frontend build passed. |
-
-## To do
-
-Open items reviewed **2026-11-22 17:39 IST**. Roadmap phases are listed in delivery order.
-
-- [ ] Review the full **test** transcript for wording, code-switching and timestamp accuracy. The Hindi / Hinglish retest was spot-checked.
-- [ ] Evaluate Marathi on a representative Marathi recording and measure transcription accuracy and processing time on longer recordings.
-- [ ] **Phase 5 · Automatic Clipping** — Rank and select top candidates, generate multiple clips and show progress.
-- [ ] **Phase 6 · AI Admin Panel** — Add provider and model configuration, API key management, routing, fallback, and usage and cost monitoring.
-- [ ] **Phase 7 · Quality and Private Beta** — Test podcast, gaming and education footage across supported languages. Measure timestamp and subtitle accuracy, clip quality, processing time and cost.
+| 2026-11-26 19:28 | Phase 5 · Automatic Clipping | Added batch settings, stage and per-clip progress, previews and downloads. Verified Flyway V9, a fresh two-clip batch, a partial batch, repeat-request handling, 42 backend tests, and the frontend build. |
 
 Update the snapshot timestamp when editing this file. Record each completed milestone with its IST timestamp and verification result.
 

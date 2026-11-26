@@ -22,7 +22,7 @@ class ClipStore {
         this.json = json;
     }
 
-    private Clip readClip(ResultSet row, int index) throws SQLException {
+    Clip readClip(ResultSet row, int index) throws SQLException {
         return new Clip(row.getObject("id", UUID.class), row.getObject("highlight_id", UUID.class),
                 row.getString("title"), row.getLong("start_ms"), row.getLong("end_ms"),
                 json.decode(row.getString("caption_settings")), Clip.Status.valueOf(row.getString("status")), row.getString("error"));
@@ -30,7 +30,33 @@ class ClipStore {
 
     @Transactional
     Clip enqueue(UUID project, UUID highlight, Clip.Duration duration, CaptionSettings captions) {
-        var source = jdbc.sql("""
+        var source = findSource(project, highlight).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Highlight not found."));
+        if (!source.currentRevision() || !"SELECTED".equals(source.decision())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Select a highlight from the current transcript first.");
+        }
+        var range = duration.resolve(source.startMs(), source.endMs(), source.durationMs());
+        if (!range.validFor(source.durationMs())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Choose a valid range of up to 60 seconds or use a duration preset.");
+        }
+        return insert(project, highlight, source, range, captions);
+    }
+
+    // Invoked only by the automatic batch transaction. Manual export still requires an explicit selection.
+    Optional<Clip> enqueueAutomatic(UUID project, UUID highlight, Clip.Duration duration, CaptionSettings captions,
+                                    List<Clip.Range> existing) {
+        var source = findSource(project, highlight).orElse(null);
+        if (source == null || "REJECTED".equals(source.decision())) return Optional.empty();
+        var range = duration.resolve(source.startMs(), source.endMs(), source.durationMs());
+        if (!range.validFor(source.durationMs()) || existing.stream().anyMatch(range::mostlyOverlaps)) {
+            return Optional.empty();
+        }
+        return Optional.of(insert(project, highlight, source, range, captions));
+    }
+
+    private Optional<Source> findSource(UUID project, UUID highlight) {
+        return jdbc.sql("""
                 SELECT h.title, h.start_ms, h.end_ms, h.decision, v.duration_seconds,
                     t.revision = (SELECT max(revision) FROM transcripts WHERE job_id = t.job_id) AS current_revision
                 FROM highlight_candidates h
@@ -42,16 +68,10 @@ class ClipStore {
                 """).param("project", project).param("highlight", highlight).query((row, index) -> new Source(
                         row.getString("title"), row.getLong("start_ms"), row.getLong("end_ms"),
                         (long) Math.floor(row.getDouble("duration_seconds") * 1000),
-                        row.getBoolean("current_revision") && "SELECTED".equals(row.getString("decision"))))
-                .optional().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Highlight not found."));
-        if (!source.selected()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Select a highlight from the current transcript first.");
-        }
-        var range = duration.resolve(source.startMs(), source.endMs(), source.durationMs());
-        if (!range.validFor(source.durationMs())) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Choose a valid range of up to 60 seconds or use a duration preset.");
-        }
+                        row.getBoolean("current_revision"), row.getString("decision"))).optional();
+    }
+
+    private Clip insert(UUID project, UUID highlight, Source source, Clip.Range range, CaptionSettings captions) {
         return jdbc.sql("""
                 INSERT INTO clips AS existing (project_id, highlight_id, title, start_ms, end_ms, caption_settings, status)
                 VALUES (:project, :highlight, :title, :start, :end, CAST(:captions AS jsonb), 'QUEUED')
@@ -111,5 +131,5 @@ class ClipStore {
 
     record Claim(UUID id, UUID token, UUID transcriptId, String storageKey, long startMs, long endMs,
                  CaptionSettings captions) {}
-    private record Source(String title, long startMs, long endMs, long durationMs, boolean selected) {}
+    private record Source(String title, long startMs, long endMs, long durationMs, boolean currentRevision, String decision) {}
 }

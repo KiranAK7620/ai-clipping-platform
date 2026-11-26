@@ -88,6 +88,12 @@ Turn **Captions** on or off. With captions on, set the font family and size, tex
 
 FFmpeg needs the `libx264` and AAC encoders. Caption rendering uses fonts installed on the backend host. Install a font covering your source language if glyphs are missing. Clips are stored in the ignored `backend/data/clips` directory by default.
 
+## Generate clips automatically
+
+Upload a video with audio and open **Automatic clips** in its workspace. Choose one to five clips, a 30-, 45-, or 60-second duration, a language for new transcription, and any caption settings. Select **Generate automatic clips**. The local worker reuses an available transcript and ranked highlights or generates them with Whisper and Ollama, then queues distinct clips for FFmpeg.
+
+**Batch results** shows the current stage and the number of clips ready. You can navigate away and return to check the latest batch. Each ready clip has an MP4 preview and download and also appears in **Exports**. A batch can finish with fewer clips when the source has too few distinct highlights or an export fails.
+
 ## Project documentation
 
 - [Product plan](Plan.md)

@@ -44,17 +44,7 @@ class TranscriptionController {
             }
         }
 
-        if (video.audioCodec() == null) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "This video has no recognized audio track.");
-        }
-        if (!engine.supportsDuration(video.durationSeconds())) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "This video exceeds the configured transcription duration limit.");
-        }
-        if (!engine.modelAvailable(language)) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "The local Whisper model is missing. See the transcription setup in the README.");
-        }
+        AutomaticTranscription.validateSource(video, engine, language);
 
         boolean accepted = jobs.enqueue(video.id(), language, revision);
         return ResponseEntity.status(accepted ? HttpStatus.ACCEPTED : HttpStatus.OK).body(statusFor(video.id()));

@@ -18,6 +18,7 @@ interface ProjectRepository extends JpaRepository<Project, UUID> {
     @Query(value = """
             SELECT (SELECT count(*) FROM transcription_jobs WHERE status IN ('QUEUED', 'EXTRACTING_AUDIO', 'TRANSCRIBING'))
                 + (SELECT count(*) FROM clips WHERE status IN ('QUEUED', 'RENDERING'))
+                + (SELECT count(*) FROM automatic_clip_runs WHERE status = 'ANALYZING')
             """, nativeQuery = true)
     long countActiveJobs();
 

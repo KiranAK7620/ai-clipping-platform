@@ -1,6 +1,6 @@
 package com.cliptova.transcription;
 
-enum TranscriptionLanguage {
+public enum TranscriptionLanguage {
     AUTO("auto"), ENGLISH("en"), HINDI("hi"), MARATHI("mr");
 
     private final String code;
